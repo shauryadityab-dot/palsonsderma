@@ -57,7 +57,7 @@ const Header = () => {
                         <ul className="space-y-2">
                           {megaMenu.categories.map((item) => (
                             <li key={item.title}>
-                              <a href={item.href} className="text-sm text-muted-foreground hover:text-foreground">
+                              <a href={item.href} className="text-sm text-muted-foreground hover:text-foreground px-2">
                                 {item.title}
                               </a>
                             </li>
@@ -145,7 +145,7 @@ const Header = () => {
                   return (
                     <div key="products" className="flex flex-col">
                       <button
-                        className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2 flex items-center justify-between"
+                        className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2 px-2 flex items-center justify-between"
                         onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
                       >
                         Products

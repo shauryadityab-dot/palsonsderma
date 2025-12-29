@@ -106,6 +106,24 @@ export const products: Product[] = [
     specs: [{ key: "SPF", value: "50" }],
     related: [],
   },
+    {
+    name: "Ultra Matte Sunscreen SPF 50",
+    slug: slugify("Ultra Matte Sunscreen SPF 50"),
+    category: "Sun Protection",
+    image: "/assets/product4.jpeg",
+    benefits: "Broad-spectrum protection, lightweight",
+    size: "75ml",
+    rating: 4.7,
+    reviews: 102,
+    price: 499,
+    collection: "bestsellers",
+    description: "A broad-spectrum SPF50 with a non-greasy finish suitable under makeup.",
+    ingredients: ["Zinc Oxide", "Octisalate"],
+    howToUse: "Apply liberally 15 minutes before sun exposure and reapply every 2 hours.",
+    faqs: [{ q: "Is it water resistant?", a: "It is water resistant for up to 40 minutes." }],
+    specs: [{ key: "SPF", value: "50" }],
+    related: [],
+  },
 
   // New launches
   {

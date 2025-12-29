@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const skinTypes = [
   { id: "dry", label: "Dry", image: "https://images.unsplash.com/photo-1542831371-d531d36971e6?auto=format&fit=crop&w=800&q=80" },
@@ -19,6 +20,98 @@ const concerns = [
   { id: "sensitivity", label: "Sensitivity", image: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80" },
 ];
 
+const SliderSection: React.FC<{ items: typeof skinTypes; urlPrefix: string }> = ({ items, urlPrefix }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollButtons();
+    window.addEventListener("resize", checkScrollButtons);
+    return () => window.removeEventListener("resize", checkScrollButtons);
+  }, [items]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = scrollContainerRef.current.clientWidth * 0.8;
+      const newScrollLeft =
+        direction === "left"
+          ? scrollContainerRef.current.scrollLeft - scrollAmount
+          : scrollContainerRef.current.scrollLeft + scrollAmount;
+
+      scrollContainerRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: "smooth",
+      });
+
+      setTimeout(checkScrollButtons, 300);
+    }
+  };
+
+  return (
+    <div className="relative">
+      {/* Navigation Buttons */}
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 -translate-x-4 bg-background border border-border rounded-full p-2 shadow-lg hover:bg-muted transition-colors"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+      )}
+
+      {canScrollRight && (
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 translate-x-4 bg-background border border-border rounded-full p-2 shadow-lg hover:bg-muted transition-colors"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      )}
+
+      {/* Slider Container */}
+      <div
+        ref={scrollContainerRef}
+        onScroll={checkScrollButtons}
+        className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide pb-2"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        {items.map((item) => (
+          <Card
+            key={item.id}
+            className="w-[calc(50%-8px)] sm:w-[calc(33.333%-16px)] lg:w-[calc(20%-19.2px)] flex-shrink-0 border border-border bg-card overflow-hidden"
+          >
+            <div className="aspect-[4/3] overflow-hidden">
+              <img src={item.image} alt={item.label} className="w-full h-full object-cover" />
+            </div>
+            <CardContent className="p-4 text-center">
+              <h4 className="font-medium text-foreground mb-2">{item.label}</h4>
+              <a href={`#${urlPrefix}-${item.id}`}>
+                <Button variant="default" size="sm" className="w-full">
+                  Shop {item.label}
+                </Button>
+              </a>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const ShopBy: React.FC = () => {
   return (
     <section className="section-padding bg-background">
@@ -35,39 +128,11 @@ const ShopBy: React.FC = () => {
           </TabsList>
 
           <TabsContent value="skin-types">
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-              {skinTypes.map((s) => (
-                <Card key={s.id} className="border border-border bg-card overflow-hidden">
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img src={s.image} alt={s.label} className="w-full h-full object-cover" />
-                  </div>
-                  <CardContent className="p-4 text-center">
-                    <h4 className="font-medium text-foreground mb-2">{s.label}</h4>
-                    <a href={`#skin-type-${s.id}`}>
-                      <Button variant="default" size="sm" className="w-full">Shop {s.label}</Button>
-                    </a>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <SliderSection items={skinTypes} urlPrefix="skin-type" />
           </TabsContent>
 
           <TabsContent value="concerns">
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-              {concerns.map((c) => (
-                <Card key={c.id} className="border border-border bg-card overflow-hidden">
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img src={c.image} alt={c.label} className="w-full h-full object-cover" />
-                  </div>
-                  <CardContent className="p-4 text-center">
-                    <h4 className="font-medium text-foreground mb-2">{c.label}</h4>
-                    <a href={`#concern-${c.id}`}>
-                      <Button variant="default" size="sm" className="w-full">Shop {c.label}</Button>
-                    </a>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <SliderSection items={concerns} urlPrefix="concern" />
           </TabsContent>
         </Tabs>
       </div>

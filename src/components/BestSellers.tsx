@@ -1,16 +1,46 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import product1 from "../../public/assets/product1.webp";
-import product2 from "../../public/assets/product2.webp";
-import product3 from "../../public/assets/product3.jpeg";
-import product4 from "../../public/assets/product4.jpeg";
-
 import { getProductsByCollection } from "@/lib/products";
+import { useRef, useState, useEffect } from "react";
 
 const BestSellers = () => {
   const products = getProductsByCollection("bestsellers");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollButtons();
+    window.addEventListener("resize", checkScrollButtons);
+    return () => window.removeEventListener("resize", checkScrollButtons);
+  }, [products]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = scrollContainerRef.current.clientWidth * 0.8;
+      const newScrollLeft =
+        direction === "left"
+          ? scrollContainerRef.current.scrollLeft - scrollAmount
+          : scrollContainerRef.current.scrollLeft + scrollAmount;
+
+      scrollContainerRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: "smooth",
+      });
+
+      setTimeout(checkScrollButtons, 300);
+    }
+  };
 
   return (
     <section className="section-padding bg-background">
@@ -24,52 +54,101 @@ const BestSellers = () => {
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <Card key={product.slug} className="border border-border bg-card overflow-hidden group cursor-pointer">
-              <Link to={`/product/${product.slug}`} className="block">
-                <div className="aspect-square bg-muted overflow-hidden">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              </Link>
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-primary uppercase tracking-wider mb-1">
-                  {product.category}
-                </p>
-                <h3 className="font-medium text-foreground">
-                  <Link to={`/product/${product.slug}`}>{product.name}</Link>
-                </h3>
+        <div className="relative">
+          {/* Navigation Buttons */}
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll("left")}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 -translate-x-4 bg-background border border-border rounded-full p-2 shadow-lg hover:bg-muted transition-colors"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
 
-                <p className="text-sm text-muted-foreground mt-2 truncate">{product.benefits}</p>
+          {canScrollRight && (
+            <button
+              onClick={() => scroll("right")}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 translate-x-4 bg-background border border-border rounded-full p-2 shadow-lg hover:bg-muted transition-colors"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          )}
 
-                <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
-                  <span>{product.size}</span>
-                  <span className="inline-flex items-center gap-1 text-amber-400">
-                    <Star className="h-4 w-4" /> {product.rating} <span className="text-xs text-muted-foreground">• {product.reviews} reviews</span>
-                  </span>
-                </div>
+          {/* Grid Container with Horizontal Scroll */}
+          <div
+            ref={scrollContainerRef}
+            onScroll={checkScrollButtons}
+            className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide pb-2"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
+            {products.map((product) => (
+              <Card
+                key={product.slug}
+                className="w-[calc(50%-8px)] lg:w-[calc(25%-18px)] flex-shrink-0 border border-border bg-card overflow-hidden group cursor-pointer"
+              >
+                <Link to={`/product/${product.slug}`} className="block">
+                  <div className="aspect-square bg-muted overflow-hidden">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                </Link>
+                <CardContent className="p-4 text-center">
+                  <p className="text-xs text-primary uppercase tracking-wider mb-1">
+                    {product.category}
+                  </p>
+                  <h3 className="font-medium text-foreground">
+                    <Link to={`/product/${product.slug}`}>{product.name}</Link>
+                  </h3>
 
-                <div className="mt-3 flex items-center justify-between">
-                  <div className="text-left">
-                    <div className="text-lg font-semibold text-foreground">₹ {product.price}</div>
-                    {product.oldPrice && (
-                      <div className="text-sm text-muted-foreground line-through">₹ {product.oldPrice}</div>
-                    )}
+                  <p className="text-sm text-muted-foreground mt-2 truncate">
+                    {product.benefits}
+                  </p>
+
+                  <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{product.size}</span>
+                    <span className="inline-flex items-center gap-1 text-amber-400">
+                      <Star className="h-4 w-4 fill-current" /> {product.rating}{" "}
+                      <span className="text-xs text-muted-foreground">
+                        • {product.reviews} reviews
+                      </span>
+                    </span>
                   </div>
 
-                  <div className="w-28">
-                    <Button variant="default" size="sm" className="w-full" aria-label={`Add ${product.name} to cart`}>
-                      Add to cart
-                    </Button>
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="text-left">
+                      <div className="text-lg font-semibold text-foreground">
+                        ₹ {product.price}
+                      </div>
+                      {product.oldPrice && (
+                        <div className="text-sm text-muted-foreground line-through">
+                          ₹ {product.oldPrice}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="w-28">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="w-full"
+                        aria-label={`Add ${product.name} to cart`}
+                      >
+                        Add to cart
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </section>
