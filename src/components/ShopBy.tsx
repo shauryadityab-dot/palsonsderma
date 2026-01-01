@@ -99,7 +99,7 @@ const SliderSection: React.FC<{ items: typeof skinTypes; urlPrefix: string }> = 
             </div>
             <CardContent className="p-4 text-center">
               <h4 className="font-medium text-foreground mb-2">{item.label}</h4>
-              <a href={`#${urlPrefix}-${item.id}`}>
+              <a href={`/category/${urlPrefix}-${item.id}`}>
                 <Button variant="default" size="sm" className="w-full">
                   Shop {item.label}
                 </Button>
