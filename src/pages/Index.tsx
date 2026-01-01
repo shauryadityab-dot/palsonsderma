@@ -6,6 +6,7 @@ import PromoBanner from "@/components/PromoBanner";
 import TrustSection from "@/components/TrustSection";
 import Footer from "@/components/Footer";
 import ShopBy from "@/components/ShopBy";
+import Testimonials from "@/components/Testimonials";
 
 const Index = () => {
   return (
@@ -18,6 +19,7 @@ const Index = () => {
         <NewLaunches />
         <PromoBanner />
         <TrustSection />
+        <Testimonials />
       </main>
       <Footer />
     </div>
