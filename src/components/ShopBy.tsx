@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const skinTypes = [
   { id: "dry", label: "Dry", image: "https://images.unsplash.com/photo-1542831371-d531d36971e6?auto=format&fit=crop&w=800&q=80" },
@@ -99,11 +100,11 @@ const SliderSection: React.FC<{ items: typeof skinTypes; urlPrefix: string }> = 
             </div>
             <CardContent className="p-4 text-center">
               <h4 className="font-medium text-foreground mb-2">{item.label}</h4>
-              <a href={`/category/${urlPrefix}-${item.id}`}>
+              <Link to={`/category/${urlPrefix}-${item.id}`}>
                 <Button variant="default" size="sm" className="w-full">
                   Shop {item.label}
                 </Button>
-              </a>
+              </Link>
             </CardContent>
           </Card>
         ))}
